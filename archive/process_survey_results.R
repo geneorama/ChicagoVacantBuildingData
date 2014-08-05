@@ -64,3 +64,13 @@ clipper(dat_contribute)
 clipper(dat_comments)
 
 
+mat <- cbind(as.matrix(unname(dat_experience)),
+			 as.matrix(unname(dat_contribute)))
+distmat <- dist(mat)
+distmat - mean(distmat)
+
+split(dat$name, kmeans(dist(mat), centers = 2)$cluster)
+split(dat$name, kmeans(dist(mat), centers = 3)$cluster)
+
+
+
