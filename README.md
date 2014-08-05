@@ -22,10 +22,17 @@ NOTE: On Windows you will need R Tools for devtools to work:
 http://cran.r-project.org/bin/windows/Rtools/installer.html
 
 ```{r}
-update.pacakges()
-## If you don't already have devtools installed:
+## Might have run Rstudio as admin (in terminal):
+##    sudo rstudio
+## Linux users might have to install these first (in terminal):
+##    sudo apt-get -y build-dep libcurl4-gnutls-dev
+##    sudo apt-get -y install libcurl4-gnutls-dev
+update.packages()
+## Only run if you don't already have devtools installed:
 install.packages('devtools')
-devtools::install_github("geneorama/geneorama")
+## Load devtools library and use it to install geneorama
+library('devtools')
+devtools::install_github('geneorama/geneorama')
 ```
 
 
