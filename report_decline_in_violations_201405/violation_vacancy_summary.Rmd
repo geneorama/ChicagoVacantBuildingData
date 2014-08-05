@@ -1,0 +1,150 @@
+
+
+```{r, results='hide', echo=FALSE, warning=FALSE}
+if (basename(getwd()) != "ChicagoVacantBuildingData") {setwd("..")}
+##------------------------------------------------------------------------------
+## INITIALIZATION
+##------------------------------------------------------------------------------
+rm(list=ls())
+gc()
+library(geneorama)
+detach_nonstandard_packages()
+library(geneorama)
+loadinstall_libraries(c("geneorama", "data.table", "ggplot2", 
+						"reshape2", "corrplot", "rpart", "party"))
+sourceDir("functions/")
+op <- readRDS("data/op.Rds")  ## Default par
+par(op)
+
+##------------------------------------------------------------------------------
+## LOAD DATA
+##------------------------------------------------------------------------------
+
+## LOAD RDS FILES
+datVacant <- readRDS("data/20140507/Vacant_and_Abandoned_Buildings_-_Violations.Rds")
+datBuild <- readRDS("data/20140507/Building_Violations.Rds")
+# VIOLATION_ORDINANCE <- readRDS(
+# 	"data/20140507/Building_Violations__VIOLATION_ORDINANCE.Rds")
+# VIOLATION_ORDINANCE_dmat <- readRDS(
+# 	"data/20140507/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix.Rds")
+
+## CONVERT NAMES
+setnames(datBuild, 
+		 old = colnames(datBuild), 
+		 new = gsub("\\.", "_", colnames(datBuild)))
+setnames(datVacant, 
+		 old = colnames(datVacant), 
+		 new = gsub("\\.", "_", colnames(datVacant)))
+
+## CONVERT APPROPRIATE COLUMNS TO FACTOR
+names_factors_vacant <- c("Issuing_Department", "Violation_Type", 
+						  "Disposition_Description", "Entity_or_Person_s_")
+convert_datatable_StringFactor(dat = datVacant, cols = names_factors_vacant)
+
+## CONVERT APPROPRIATE COLUMNS TO FACTOR
+names_factors_build <- c("VIOLATION_STATUS", "VIOLATION_CODE", 
+						 "VIOLATION_DESCRIPTION", "VIOLATION_ORDINANCE", 
+						 "INSPECTOR_ID", "INSPECTION_STATUS", 
+						 "INSPECTION_WAIVED", "INSPECTION_CATEGORY", 
+						 "DEPARTMENT_BUREAU")
+convert_datatable_StringFactor(dat = datBuild, cols = names_factors_build)
+
+## Convert column classes to interger based dates
+convert_datatable_DateIDate(datBuild)
+convert_datatable_DateIDate(datVacant)
+
+## CONVERT LATITUDE TO NUMERIC
+datBuild[ , LATITUDE:=as.numeric(LATITUDE)]
+
+## ADD FIELD: id
+datBuild[ , id := 1:nrow(datBuild)]
+# names(VIOLATION_ORDINANCE) = 1:length(VIOLATION_ORDINANCE)
+```
+
+
+
+```{r, results='hide', echo=FALSE, warning=FALSE}
+##------------------------------------------------------------------------------
+## BASIC DATA SUMMARIES
+##------------------------------------------------------------------------------
+
+## Basic data summaries
+str(datVacant)
+str(datBuild)
+
+## Show NA and Unique Value (and remove columns with only one unique value)
+naVacant <- NAsummary(datVacant)
+naBuild <- NAsummary(datBuild)
+naVacant
+naBuild
+
+## ONLY KEEP FIELDS WITH MORE THAN ONE UNIQUE VALUE
+datVacant <- datVacant[ , which(naVacant$nUnique > 1), with = F]
+datBuild <- datBuild[ , which(naBuild$nUnique > 1), with = F]
+
+## Remove NA summaries
+rm(naVacant, naBuild)
+```
+
+```{r}
+plot(N~yearmo, 
+	 data = datBuild[,list(.N), list(VIOLATION_DATE, ADDRESS)][
+	 	,.N, list(yearmo=round(VIOLATION_DATE, "month"))],type = "o")
+plot(N~yearmo, datBuild[,list(.N),list(yearmo=round(VIOLATION_DATE, "month"))],
+	 type = "o")
+plot(N~yearmo, 
+	 data = datVacant[,list(.N), list(Issued_Date, Property_Address)][
+	 	,.N, list(yearmo=round(Issued_Date, "month"))],type = "o")
+
+```
+
+
+```{r}
+
+Violations_grpbyAddress <- datBuild[
+	i= TRUE,
+	j = list(.N), 
+	by = list(VIOLATION_DATE, ADDRESS)]
+Violations_grpbyAddress_byDate <- Violations_grpbyAddress[
+	i = TRUE,
+	j = .N, 
+	by = list(yearmo=round(VIOLATION_DATE, "month"))]
+ggplot(data = Violations_grpbyAddress_byDate) + 
+	aes(yearmo, y = N) +
+	geom_line()
+
+Violations_grpbyDate <- datBuild[
+	i = TRUE,
+	j = list(.N),
+	by = list(yearmo=round(VIOLATION_DATE, "month"))]
+ggplot(data = Violations_grpbyDate) + 
+	aes(yearmo, y = N) +
+	geom_line()
+
+VacantProperties_grpbyAddress <- datVacant[
+	i = TRUE,
+	j = list(.N), 
+	by = list(Issued_Date, Property_Address)]
+VacantProperties_grpbyAddress_byDate <- VacantProperties_grpbyAddress[
+	i = TRUE,
+	j = .N, 
+	by = list(yearmo=round(Issued_Date, "month"))]
+ggplot(data = VacantProperties_grpbyAddress_byDate[-1]) + 
+	aes(yearmo, y = N) +
+	xlim(range(Violations_grpbyAddress_byDate$yearmo)) +
+	geom_line()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
