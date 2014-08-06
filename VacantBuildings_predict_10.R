@@ -8,23 +8,40 @@ gc()
 library(geneorama)
 detach_nonstandard_packages()
 library(geneorama)
+## Load and/or install 
 loadinstall_libraries(c("geneorama", "data.table", "ggplot2", 
 						"reshape2", "corrplot", "rpart", "party"))
+## Load functions for this project
 sourceDir("functions/")
-op <- readRDS("data/op.Rds")  ## Default par
-par(op)
 
 ##------------------------------------------------------------------------------
-## LOAD DATA
+## LOAD DATA OBJECTS
 ##------------------------------------------------------------------------------
+
+## Filepaths to data objects used in this script
+## See associated R files for documentation
+fp1 <- 'data/op'
+fp2 <- "data/Vacant_and_Abandoned_Buildings_-_Violations"
+fp3 <- "data/Building_Violations"
+fp4 <- "data/Building_Violations__VIOLATION_ORDINANCE"
+fp5 <- "data/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix"
+
+## Create Rds files, if they don't exist locally
+if(!file.exists(paste0(fp1, ".Rds"))) source(paste0(fp1, ".R"), local=TRUE, echo=TRUE)
+if(!file.exists(paste0(fp2, ".Rds"))) source(paste0(fp2, ".R"), local=TRUE, echo=TRUE)
+if(!file.exists(paste0(fp3, ".Rds"))) source(paste0(fp3, ".R"), local=TRUE, echo=TRUE)
+if(!file.exists(paste0(fp4, ".Rds"))) source(paste0(fp4, ".R"), local=TRUE, echo=TRUE)
+if(!file.exists(paste0(fp5, ".Rds"))) source(paste0(fp5, ".R"), local=TRUE, echo=TRUE)
 
 ## LOAD RDS FILES
-datVacant <- readRDS("data/20140507/Vacant_and_Abandoned_Buildings_-_Violations.Rds")
-datBuild <- readRDS("data/20140507/Building_Violations.Rds")
-VIOLATION_ORDINANCE <- readRDS(
-	"data/20140507/Building_Violations__VIOLATION_ORDINANCE.Rds")
-VIOLATION_ORDINANCE_dmat <- readRDS(
-	"data/20140507/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix.Rds")
+op <- readRDS("data/op.Rds")
+datVacant <- readRDS(paste0(fp2, ".Rds"))
+datBuild <- readRDS(paste0(fp3, ".Rds"))
+VIOLATION_ORDINANCE <- readRDS(paste0(fp4, ".Rds"))
+VIOLATION_ORDINANCE_dmat <- readRDS(paste0(fp5, ".Rds"))
+
+## LOAD DEFAULT PAR VALUES
+par(op)
 
 ## CONVERT NAMES
 setnames(datBuild, 
