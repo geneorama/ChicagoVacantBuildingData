@@ -34,7 +34,7 @@ if(!file.exists(paste0(fp4, ".Rds"))) source(paste0(fp4, ".R"), local=TRUE, echo
 if(!file.exists(paste0(fp5, ".Rds"))) source(paste0(fp5, ".R"), local=TRUE, echo=TRUE)
 
 ## LOAD RDS FILES
-op <- readRDS("data/op.Rds")
+op <- readRDS(paste0(fp1, ".Rds"))
 datVacant <- readRDS(paste0(fp2, ".Rds"))
 datBuild <- readRDS(paste0(fp3, ".Rds"))
 VIOLATION_ORDINANCE <- readRDS(paste0(fp4, ".Rds"))
