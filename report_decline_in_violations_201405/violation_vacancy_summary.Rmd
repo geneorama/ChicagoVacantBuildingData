@@ -1,6 +1,8 @@
 
+## Analysis of violation counts
 
-```{r, results='hide', echo=FALSE, warning=FALSE}
+
+```{r, results='hide', echo=FALSE, warning=FALSE, message=FALSE}
 if (basename(getwd()) != "ChicagoVacantBuildingData") {setwd("..")}
 ##------------------------------------------------------------------------------
 ## INITIALIZATION
@@ -10,23 +12,41 @@ gc()
 library(geneorama)
 detach_nonstandard_packages()
 library(geneorama)
-loadinstall_libraries(c("geneorama", "data.table", "ggplot2", 
+loadinstall_libraries(c("geneorama", "data.table", "ggplot2", "knitr",
 						"reshape2", "corrplot", "rpart", "party"))
 sourceDir("functions/")
 op <- readRDS("data/op.Rds")  ## Default par
 par(op)
 
 ##------------------------------------------------------------------------------
-## LOAD DATA
+## LOAD DATA OBJECTS
 ##------------------------------------------------------------------------------
 
+## Filepaths to data objects used in this script
+## See associated R files for documentation
+fp1 <- 'data/op'
+fp2 <- "data/Vacant_and_Abandoned_Buildings_-_Violations"
+fp3 <- "data/Building_Violations"
+# fp4 <- "data/Building_Violations__VIOLATION_ORDINANCE"
+# fp5 <- "data/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix"
+
+## Create Rds files, if they don't exist locally
+if(!file.exists(paste0(fp1, ".Rds"))) source(paste0(fp1, ".R"), local=TRUE, echo=TRUE)
+if(!file.exists(paste0(fp2, ".Rds"))) source(paste0(fp2, ".R"), local=TRUE, echo=TRUE)
+if(!file.exists(paste0(fp3, ".Rds"))) source(paste0(fp3, ".R"), local=TRUE, echo=TRUE)
+# if(!file.exists(paste0(fp4, ".Rds"))) source(paste0(fp4, ".R"), local=TRUE, echo=TRUE)
+# if(!file.exists(paste0(fp5, ".Rds"))) source(paste0(fp5, ".R"), local=TRUE, echo=TRUE)
+
 ## LOAD RDS FILES
-datVacant <- readRDS("data/20140507/Vacant_and_Abandoned_Buildings_-_Violations.Rds")
-datBuild <- readRDS("data/20140507/Building_Violations.Rds")
-# VIOLATION_ORDINANCE <- readRDS(
-# 	"data/20140507/Building_Violations__VIOLATION_ORDINANCE.Rds")
-# VIOLATION_ORDINANCE_dmat <- readRDS(
-# 	"data/20140507/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix.Rds")
+op <- readRDS(paste0(fp1, ".Rds"))
+datVacant <- readRDS(paste0(fp2, ".Rds"))
+datBuild <- readRDS(paste0(fp3, ".Rds"))
+# VIOLATION_ORDINANCE <- readRDS(paste0(fp4, ".Rds"))
+# VIOLATION_ORDINANCE_dmat <- readRDS(paste0(fp5, ".Rds"))
+
+##------------------------------------------------------------------------------
+## MODIFY DATA
+##------------------------------------------------------------------------------
 
 ## CONVERT NAMES
 setnames(datBuild, 
@@ -62,7 +82,6 @@ datBuild[ , id := 1:nrow(datBuild)]
 ```
 
 
-
 ```{r, results='hide', echo=FALSE, warning=FALSE}
 ##------------------------------------------------------------------------------
 ## BASIC DATA SUMMARIES
@@ -86,33 +105,16 @@ datBuild <- datBuild[ , which(naBuild$nUnique > 1), with = F]
 rm(naVacant, naBuild)
 ```
 
-```{r}
-plot(N~yearmo, 
-	 data = datBuild[,list(.N), list(VIOLATION_DATE, ADDRESS)][
-	 	,.N, list(yearmo=round(VIOLATION_DATE, "month"))],type = "o")
-plot(N~yearmo, datBuild[,list(.N),list(yearmo=round(VIOLATION_DATE, "month"))],
-	 type = "o")
-plot(N~yearmo, 
-	 data = datVacant[,list(.N), list(Issued_Date, Property_Address)][
-	 	,.N, list(yearmo=round(Issued_Date, "month"))],type = "o")
 
+```{r}
+opts_chunk$set(tidy=FALSE, fig.width=12, results="hold")
 ```
 
 
+## Violation counts are declining
+
 ```{r}
-
-Violations_grpbyAddress <- datBuild[
-	i= TRUE,
-	j = list(.N), 
-	by = list(VIOLATION_DATE, ADDRESS)]
-Violations_grpbyAddress_byDate <- Violations_grpbyAddress[
-	i = TRUE,
-	j = .N, 
-	by = list(yearmo=round(VIOLATION_DATE, "month"))]
-ggplot(data = Violations_grpbyAddress_byDate) + 
-	aes(yearmo, y = N) +
-	geom_line()
-
+## Group the data by month
 Violations_grpbyDate <- datBuild[
 	i = TRUE,
 	j = list(.N),
@@ -120,7 +122,32 @@ Violations_grpbyDate <- datBuild[
 ggplot(data = Violations_grpbyDate) + 
 	aes(yearmo, y = N) +
 	geom_line()
+```
 
+## Violation counts after grouping by address
+
+```{r}
+## Group violations by address and day
+Violations_grpbyAddress <- datBuild[
+	i= TRUE,
+	j = list(.N), 
+	by = list(VIOLATION_DATE, ADDRESS)]
+## Group the grouped data by month
+Violations_grpbyAddress_byDate <- Violations_grpbyAddress[
+	i = TRUE,
+	j = .N, 
+	by = list(yearmo=round(VIOLATION_DATE, "month"))]
+## Plot the results
+ggplot(data = Violations_grpbyAddress_byDate) + 
+	aes(yearmo, y = N) +
+	geom_line()
+```
+
+## Vacant Building counts 
+
+Vacant Building counts increased over the same time, and they're missing from the violation data
+
+```{r}
 VacantProperties_grpbyAddress <- datVacant[
 	i = TRUE,
 	j = list(.N), 
@@ -135,7 +162,6 @@ ggplot(data = VacantProperties_grpbyAddress_byDate[-1]) +
 	geom_line()
 
 ```
-
 
 
 
