@@ -18,7 +18,7 @@ if(FALSE){
 ##------------------------------------------------------------------------------
 ## LOAD DATA
 ##------------------------------------------------------------------------------
-datBuild <- readRDS("data/20140507/Building_Violations.Rds")
+datBuild <- readRDS("data/Building_Violations.Rds")
 ## CONVERT NAMES
 setnames(datBuild, 
 		 old = colnames(datBuild), 
@@ -43,7 +43,7 @@ names(VIOLATION_ORDINANCE) <- datBuild[ , ID]
 ## SAVE VIOLATION_ORDINANCE
 ##------------------------------------------------------------------------------
 saveRDS(VIOLATION_ORDINANCE,
-		'data/20140507/Building_Violations__VIOLATION_ORDINANCE.Rds')
+		'data/Building_Violations__VIOLATION_ORDINANCE.Rds')
 
 if(FALSE){
 	## OPTIONAL PLOTS

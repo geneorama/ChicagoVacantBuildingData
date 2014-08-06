@@ -9,7 +9,7 @@ library(geneorama)
 detach_nonstandard_packages()
 library(geneorama)
 ## Load and/or install 
-loadinstall_libraries(c("geneorama", "data.table", "ggplot2", 
+loadinstall_libraries(c("geneorama", "data.table", "ggplot2", "Matrix",
 						"reshape2", "corrplot", "rpart", "party"))
 ## Load functions for this project
 sourceDir("functions/")

@@ -22,8 +22,7 @@ if(FALSE){
 ##------------------------------------------------------------------------------
 ## Load data for vacant buildings and violations
 ##------------------------------------------------------------------------------
-VIOLATION_ORDINANCE <- readRDS(
-	"data/20140507/Building_Violations__VIOLATION_ORDINANCE.Rds")
+VIOLATION_ORDINANCE <- readRDS("data/Building_Violations__VIOLATION_ORDINANCE.Rds")
 
 ##------------------------------------------------------------------------------
 ## CREATE AND CONVERT UNIVERSE
@@ -70,31 +69,6 @@ print(object.size(mat), units="Mb")
 ##------------------------------------------------------------------------------
 ## SAVE THE SPARSE MATRIX OF ORDINANCE VIOLATION
 ##------------------------------------------------------------------------------
-saveRDS(mat, "data/20140507/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix.Rds")
-
-
-
-##------------------------------------------------------------------------------
-## CONVERT SPARSE MATRIX TO DATA TABLE AND SAVE
-## This object is very large (although it doesn't take up much disk space), so
-## it may not be feasible to work with.
-##------------------------------------------------------------------------------
-
-## Read from disk if needed
-# mat <- readRDS("data/20140507/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix.Rds")
-
-mat_dt <- matrix(NA, nrow=nrow(mat), ncol=ncol(mat))
-for(i in 1:ncol(mat_dt)){
-	if(i %% 10 == 0) print(i)
-	mat_dt[ , i] <- as.matrix(mat[, i])
-}
-lll()
-mat_dt <- as.data.table(mat_dt)
-lll()
-
-rownames(mat_dt) <- rownames(mat)
-setnames(mat_dt, colnames(mat_dt), colnames(mat))
-
-saveRDS(mat_dt, "data/20140507/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix_dt.Rds")
+saveRDS(mat, "data/Building_Violations__VIOLATION_ORDINANCE_dummy_matrix.Rds")
 
 

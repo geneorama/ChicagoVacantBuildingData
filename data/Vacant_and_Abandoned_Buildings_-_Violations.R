@@ -33,8 +33,13 @@ outfile_rds <- paste0(outfile, ".Rds")
 ##------------------------------------------------------------------------------
 ## DOWNLOAD CSV
 ##------------------------------------------------------------------------------
-
-download.file(url = infile, destfile = outfile_csv, method='wget')
+if(Sys.info()['sysname']=="Linux"){
+	download.file(url = infile, destfile = outfile_csv, method='wget')    
+} else if  (Sys.info()['sysname']=="Windows"){
+	download.file(url = infile, destfile = outfile_csv, method='internal')    
+} else {
+	download.file(url = infile, destfile = outfile_csv, method='curl')
+}
 
 ##------------------------------------------------------------------------------
 ## LOAD DATA FROM CSV
