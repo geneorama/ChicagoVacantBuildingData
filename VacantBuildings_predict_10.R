@@ -488,7 +488,7 @@ datBuild[ , list(Vacant_Address=any(Vacant_Address)), Property_Address][ , dftab
 ## SAVE datModel
 ##==============================================================================
 
-outfile <- "data/20140507/VacantBuildingData.Rds"
+outfile <- "data/VacantBuildings_predict_10.Rds"
 
 saveRDS(datModel, outfile)
 
